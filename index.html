@@ -3,151 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Creator Dashboard</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            border: 2px solid white;
-            background: #1e1e1e;
-            border-radius: 10px;
-        }
-        .tabs {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .tab {
-            padding: 10px;
-            cursor: pointer;
-            background: #333;
-            border-radius: 5px;
-        }
-        .tab.active {
-            background: #6200ea;
-        }
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-        }
-        input, textarea {
-            width: 100%;
-            margin: 5px 0;
-            padding: 8px;
-            background: #333;
-            color: white;
-            border: 1px solid white;
-            border-radius: 5px;
-        }
-        button {
-            margin: 10px;
-            padding: 10px;
-            background: #6200ea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    <title>Ultimate Character Creator</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Character Creator Dashboard</h1>
-    <div class="container">
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('character-creator')">Character Creator</div>
-            <div class="tab" onclick="switchTab('character-groups')">Character Groups</div>
-            <div class="tab" onclick="switchTab('individual-characters')">Individual Characters</div>
-        </div>
-        
-        <div id="character-creator" class="section active">
-            <h2>Create a Character</h2>
-            <form id="character-form">
-                <input type="text" id="name" placeholder="Name" required>
-                <input type="text" id="race" placeholder="Race" required>
-                <input type="text" id="class" placeholder="Class" required>
-                <textarea id="bio" placeholder="Character Bio" required></textarea>
-                <textarea id="traits" placeholder="Traits (comma separated)" required></textarea>
-                <input type="text" id="bg-image" placeholder="Background Image URL (optional)">
-                <button type="submit">Save Character</button>
-            </form>
-            <div id="character-list"></div>
-        </div>
-        
-        <div id="character-groups" class="section">
-            <h2>Character Groups</h2>
-            <p>Coming soon...</p>
-        </div>
-        
-        <div id="individual-characters" class="section">
-            <h2>Individual Characters</h2>
-            <p>Coming soon...</p>
-        </div>
+    <div id="dashboard">
+        <nav id="sidebar">
+            <h2>Dashboard</h2>
+            <ul>
+                <li><button onclick="showSection('character-creator')">Character Creator</button></li>
+                <ul id="character-groups">
+                    <li><button onclick="showSection('new-character')">+ New Character</button></li>
+                </ul>
+            </ul>
+        </nav>
+        <main id="main-content">
+            <section id="character-creator" class="hidden">
+                <h2>Character Creator</h2>
+                <form id="character-form">
+                    <label>Name: <input type="text" id="name"></label>
+                    <label>Gender: <input type="text" id="gender"></label>
+                    <label>Origin Country: <input type="text" id="country" list="custom-countries"></label>
+                    <datalist id="custom-countries"></datalist>
+                    <label>Personality Traits:
+                        <select id="personality-traits" onchange="toggleCustomTrait()">
+                            <option value="calm">Calm - Cool-headed under pressure.</option>
+                            <option value="wrathful">Wrathful - Quick to anger, seeks vengeance.</option>
+                            <option value="custom">Create Custom</option>
+                        </select>
+                        <input type="text" id="custom-trait" placeholder="Enter custom trait" class="hidden">
+                    </label>
+                    <label>Background Story:
+                        <textarea id="background" rows="4"></textarea>
+                    </label>
+                    <div id="modular-panels">
+                        <h3>Custom Panels</h3>
+                        <button type="button" onclick="addPanel()">+ Add Panel</button>
+                        <div id="panel-container"></div>
+                    </div>
+                    <button type="submit">Save Character</button>
+                </form>
+                <div id="character-list"></div>
+            </section>
+            <section id="relationship-mapping" class="hidden">
+                <h2>Character Relationships</h2>
+                <p>Feature to map relationships between characters.</p>
+            </section>
+        </main>
     </div>
-    
-    <script>
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-            document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        document.getElementById("character-form").addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            let name = document.getElementById("name").value;
-            let race = document.getElementById("race").value;
-            let charClass = document.getElementById("class").value;
-            let bio = document.getElementById("bio").value;
-            let traits = document.getElementById("traits").value.split(",").map(t => t.trim());
-            let bgImage = document.getElementById("bg-image").value;
-
-            let character = { name, race, charClass, bio, traits, bgImage };
-            let characters = JSON.parse(localStorage.getItem("characters")) || [];
-            characters.push(character);
-            localStorage.setItem("characters", JSON.stringify(characters));
-
-            displayCharacters();
-            this.reset();
-        });
-
-        function displayCharacters() {
-            let characterList = document.getElementById("character-list");
-            characterList.innerHTML = "";
-            let characters = JSON.parse(localStorage.getItem("characters")) || [];
-
-            characters.forEach((char, index) => {
-                let div = document.createElement("div");
-                div.classList.add("character-card");
-                div.innerHTML = `
-                    <h3>${char.name} (${char.race} - ${char.charClass})</h3>
-                    <p><strong>Bio:</strong> ${char.bio}</p>
-                    <p><strong>Traits:</strong> ${char.traits.join(", ")}</p>
-                    ${char.bgImage ? `<img src="${char.bgImage}" alt="Character Background" style="width:100%; border-radius:5px;">` : ""}
-                    <button onclick="deleteCharacter(${index})">Delete</button>
-                `;
-                characterList.appendChild(div);
-            });
-        }
-
-        function deleteCharacter(index) {
-            let characters = JSON.parse(localStorage.getItem("characters")) || [];
-            characters.splice(index, 1);
-            localStorage.setItem("characters", JSON.stringify(characters));
-            displayCharacters();
-        }
-
-        document.addEventListener("DOMContentLoaded", displayCharacters);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
