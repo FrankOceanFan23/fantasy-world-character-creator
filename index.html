@@ -3,29 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Fantasy World</title>
+    <title>Character Creator</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .character-sheet {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 2px solid white;
+            background: #1e1e1e;
+            border-radius: 10px;
+            position: relative;
+        }
+        .draggable {
+            cursor: move;
+            position: absolute;
+            padding: 10px;
+            background: #333;
+            border: 1px solid white;
+            border-radius: 5px;
+        }
+        .grid {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 20px 20px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px), 
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+        }
+    </style>
 </head>
 <body>
-    <h1>Character Creator</h1>
-    <form id="character-form">
-        <label for="name">Name:</label>
-        <input type="text" id="name" required><br>
+    <h1 style="text-align: center;">Character Creator</h1>
+    <div class="character-sheet">
+        <div class="grid" id="grid-overlay"></div>
+        <div id="name" class="draggable" style="top: 50px; left: 50px;">Name: <input type="text"></div>
+        <div id="gender" class="draggable" style="top: 100px; left: 50px;">Gender: <input type="text"></div>
+        <div id="residence" class="draggable" style="top: 150px; left: 50px;">Residence: <input type="text"></div>
+    </div>
+    <button onclick="toggleGrid()">Toggle Grid</button>
+    <button onclick="toggleLock()">Toggle Lock</button>
+    
+    <script>
+        let isLocked = false;
+        let isGridEnabled = false;
 
-        <label for="race">Race:</label>
-        <input type="text" id="race" required><br>
+        document.querySelectorAll('.draggable').forEach(item => {
+            item.addEventListener('mousedown', dragStart);
+        });
 
-        <label for="class">Class:</label>
-        <input type="text" id="class" required><br>
+        function dragStart(event) {
+            if (isLocked) return;
+            let element = event.target;
+            let shiftX = event.clientX - element.getBoundingClientRect().left;
+            let shiftY = event.clientY - element.getBoundingClientRect().top;
+            
+            function moveAt(clientX, clientY) {
+                let x = clientX - shiftX;
+                let y = clientY - shiftY;
+                if (isGridEnabled) {
+                    x = Math.round(x / 20) * 20;
+                    y = Math.round(y / 20) * 20;
+                }
+                element.style.left = x + 'px';
+                element.style.top = y + 'px';
+            }
 
-        <label for="bio">Bio:</label>
-        <textarea id="bio"></textarea><br>
+            function onMouseMove(event) {
+                moveAt(event.clientX, event.clientY);
+            }
 
-        <button type="submit">Save Character</button>
-    </form>
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', () => {
+                document.removeEventListener('mousemove', onMouseMove);
+            }, { once: true });
+        }
 
-    <h2>Saved Characters</h2>
-    <ul id="character-list"></ul>
+        function toggleGrid() {
+            isGridEnabled = !isGridEnabled;
+            document.getElementById('grid-overlay').style.display = isGridEnabled ? 'block' : 'none';
+        }
 
-    <script src="script.js"></script>
+        function toggleLock() {
+            isLocked = !isLocked;
+        }
+    </script>
 </body>
 </html>
