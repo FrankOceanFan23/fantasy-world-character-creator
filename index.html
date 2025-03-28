@@ -6,7 +6,26 @@
     <title>My Fantasy World</title>
 </head>
 <body>
-    <h1>Welcome to My Fantasy World</h1>
-    <p>This is where my interactive map and character sheets will go!</p>
+    <h1>Character Creator</h1>
+    <form id="character-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br>
+
+        <label for="race">Race:</label>
+        <input type="text" id="race" required><br>
+
+        <label for="class">Class:</label>
+        <input type="text" id="class" required><br>
+
+        <label for="bio">Bio:</label>
+        <textarea id="bio"></textarea><br>
+
+        <button type="submit">Save Character</button>
+    </form>
+
+    <h2>Saved Characters</h2>
+    <ul id="character-list"></ul>
+
+    <script src="script.js"></script>
 </body>
 </html>
